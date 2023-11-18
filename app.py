@@ -106,6 +106,48 @@ def compare_functions(functions, threshold):
   similarity = cmp.get_similar_functions(functions['focused_functions'], functions['other_functions'], threshold)
   return jsonify({'similarity': similarity})
 
+@app.route('/compare-functions-between-branches/<focused_diff>/<focused_sources>/<other_diff>/<other_sources>/<threshold>', methods=['GET'])
+def compare_functions_between_branches(focused_diff, focused_sources, other_diff, other_sources, threshold):
+  """
+    ---
+    parameters:
+      - name: focused_diff
+        in: path
+        type: string
+        required: true
+        description: yes
+      - name: focused_sources
+        in: path
+        type: string
+        required: true
+        description: yes
+      - name: other_diff
+        in: path
+        type: string
+        required: true
+        description: yes
+      - name: other_sources
+        in: path
+        type: string
+        required: true
+        description: yes
+      - name: threshold
+        in: path
+        type: float
+        required: true
+        description: yes
+    responses:
+      200:
+        description: A code summarizer.
+  """
+  cmp = SimilarityComparison()
+  focused_sources = json.loads(focused_sources)
+  other_sources = json.loads(other_sources)
+  if threshold:
+     threshold = float(threshold)
+  similarity = cmp.get_similar_functions_from_diff_and_source(focused_diff, focused_sources, other_diff, other_sources, threshold)
+  return jsonify({'similarity': similarity})
+
 @app.route('/improve/<code>', methods=['GET'])
 def improve(code):
   """
