@@ -2,6 +2,7 @@ import json
 from flask import Flask, jsonify
 from flasgger import Swagger
 from src.SimilarityComparison import SimilarityComparison
+from src.CodeImprover import CodeImprover
 from src.CodeSummarizer import CodeSummarizer
 app = Flask(__name__)
 swagger = Swagger(app)
@@ -105,6 +106,41 @@ def compare_functions(functions, threshold):
   similarity = cmp.get_similar_functions(functions['focused_functions'], functions['other_functions'], threshold)
   return jsonify({'similarity': similarity})
 
+@app.route('/improve/<code>', methods=['GET'])
+def improve(code):
+  """
+    ---
+    parameters:
+      - name: code
+        in: path
+        type: string
+        required: true
+        description: yes
+    responses:
+      200:
+        description: A code summarizer.
+  """
+  codeImprover = CodeImprover()
+  improvedCode = codeImprover.improveCode(code)
+  return improvedCode
 
+@app.route('/comment/<code>', methods=['GET'])
+def comment(code):
+  """
+    ---
+    parameters:
+      - name: code
+        in: path
+        type: string
+        required: true
+        description: yes
+    responses:
+      200:
+        description: A code summarizer.
+  """
+  codeImprover = CodeImprover()
+  commentedCode = codeImprover.commentCode(code)
+
+  return jsonify(commentedCode)
 if __name__ == '__main__':
     app.run()

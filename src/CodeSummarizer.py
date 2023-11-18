@@ -7,8 +7,6 @@ class CodeSummarizer:
 
 
     def __init__(self):
-        self.opanai_key = "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"
-        self.client = OpenAI(api_key=self.opanai_key)
         self.handler = OpenAiHandler()
     
     
