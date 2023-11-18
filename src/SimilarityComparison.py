@@ -67,7 +67,7 @@ class SimilarityComparison:
         Returns:
             np.ndarray: A 2D array of similarity scores between the focused functions and other functions.
         """
-        similarities = np.zeros((len(focused_functions), len(other_functions)))
+        similarities = np.zeros((len(focused_functions), len(other_functions)), dtype=float)
         for i, focused_function in enumerate(focused_functions):
             for j, other_function in enumerate(other_functions):
                 similarity_score = self.compare(focused_function, other_function)
@@ -87,5 +87,9 @@ class SimilarityComparison:
             list: List of tuples containing the indices and similarities of similar functions.
         """
         similarities = self.compare_functions(focused_functions, other_functions)
-        indices_with_similarity = [(i, j, similarities[i, j]) for i, j in zip(*np.where(similarities > threshold))]
+        indices_with_similarity = []
+        for i in range(len(focused_functions)):
+            for j in range(len(other_functions)):
+                if similarities[i,j] >= threshold:
+                    indices_with_similarity += [(i, j, similarities[i, j])]
         return indices_with_similarity

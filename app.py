@@ -1,3 +1,4 @@
+import json
 from flask import Flask, jsonify
 from flasgger import Swagger
 from src.SimilarityComparison import SimilarityComparison
@@ -66,5 +67,44 @@ def summarize_completion(code):
   print(type(summary))
 
   return jsonify({'similarity': summary})
+
+@app.route('/comapre-functions/<functions>/<threshold>', methods=['GET'])
+def compare_functions(functions, threshold):
+  """
+    ---
+    parameters:
+      - name: functions
+        in: path
+        required: true
+        schema:
+          type: object
+          properties:
+            focused_functions:
+              type: array
+              items:
+                type: string
+            other_functions:
+              type: array
+              items:
+                type: string
+        description: yes
+      - name: threshold
+        in: path
+        required: false
+        type: float
+        description: yes
+
+    responses:
+      200:
+        description: A code summarizer.
+  """
+  cmp = SimilarityComparison()
+  functions = json.loads(functions)
+  if threshold:
+     threshold = float(threshold)
+  similarity = cmp.get_similar_functions(functions['focused_functions'], functions['other_functions'], threshold)
+  return jsonify({'similarity': similarity})
+
+
 if __name__ == '__main__':
     app.run()

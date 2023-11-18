@@ -1,0 +1,10 @@
+{
+  "focused_functions": [
+    "def compare(self, code1, code2):\nembedding1 = self.get_bert_embedding(code1)[0]\n        embedding2 = self.get_bert_embedding(code2)[0]\n        similarity_score = self.calculate_cosine_similarity(embedding1, embedding2)\n        return similarity_score",
+    "def get_bert_embedding(self, code):\n        embedding = self.tokenizer.encode(code, return_tensors='pt')\n        with torch.no_grad():\n            embedding = self.model(embedding).last_hidden_state.mean(dim=1).numpy()\n        return embedding"
+  ],
+  "other_functions": [
+    "def compare(self, code1, code2):\nembedding1 = self.get_bert_embedding(code1)[0]\n        embedding2 = self.get_bert_embedding(code2)[0]\n        similarity_score = self.calculate_cosine_similarity(embedding1, embedding2)\n        return similarity_score",
+    "def get_bert_embedding(self, code):\n        embedding = self.tokenizer.encode(code, return_tensors='pt')\n        with torch.no_grad():\n            embedding = self.model(embedding).last_hidden_state.mean(dim=1).numpy()\n        return embedding"
+  ]
+}
