@@ -1,13 +1,17 @@
 import torch
 import numpy as np
-from transformers import AutoTokenizer, AutoModel
 from scipy.spatial.distance import cosine
-
+from transformers import AutoTokenizer, AutoModel
 
 class SimilarityComparison:
+    """
+    A class for comparing the similarity between code snippets using BERT embeddings.
+    """
 
     def __init__(self) -> None:
-        # Load BERT model and tokenizer
+        """
+        Initializes the SimilarityComparison class by loading the BERT model and tokenizer.
+        """
         self.tokenizer = AutoTokenizer.from_pretrained("microsoft/codebert-base")
         self.model = AutoModel.from_pretrained("microsoft/codebert-base")
     
