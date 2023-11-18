@@ -1,7 +1,7 @@
 from flask import Flask, jsonify
 from flasgger import Swagger
 from src.SimilarityComparison import SimilarityComparison
-
+from src.CodeSummarizer import CodeSummarizer
 app = Flask(__name__)
 swagger = Swagger(app)
 
@@ -22,7 +22,7 @@ def compare_code(main_code, compare_code):
         description: The code to be compared with.
     responses:
       200:
-        description: A simple greeting message.
+        description: A code comparator.
     """
     cmp = SimilarityComparison()
     similarity = cmp.compare(main_code, compare_code)
@@ -33,20 +33,24 @@ def summarize(code):
   """
     ---
     parameters:
-      - name: main_code
+      - name: code
         in: path
-        type: string
+        schema:
+          type: object
+          properties:
+            code:
+              type: string
+        example:
+          code: "your_code_here"
         required: true
         description: yes
-      - name: compare_code
-        type: string
-        in: path
-        required: true
-        description: The code to be compared with.
     responses:
       200:
-        description: A simple greeting message.
-    """
-  return jsonify({'similarity': similarity})
+        description: A code summarizer.
+  """
+  summarizer = CodeSummarizer()
+  summary = summarizer.summarizeCode(code)
+  print(type(summary))
+  return jsonify({'similarity': summary})
 if __name__ == '__main__':
     app.run()

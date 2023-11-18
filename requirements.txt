@@ -4,4 +4,5 @@ scipy
 flask 
 Werkzeug
 flask-restplus
+openai
 #flask-restx
