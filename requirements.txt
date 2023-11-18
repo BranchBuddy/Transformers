@@ -1,0 +1,7 @@
+transformers
+torch
+scipy
+flask 
+Werkzeug
+flask-restplus
+#flask-restx
