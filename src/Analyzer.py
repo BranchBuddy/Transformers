@@ -21,20 +21,20 @@ def extract_functions(diff: str, source: str, language: str):
         raise ValueError("Language must be either 'java' or 'python'.")
     if language == "java":
         function_names = extract_java_function_names(diff)
-        return extract_java_functions_from_code(source, function_names)
+        return extract_java_functions_from_source(source, function_names)
     if language == "python":
         function_names = extract_python_function_names(diff)
-        return get_python_functions_from_code(source, function_names)
+        return extract_python_functions_from_source(source, function_names)
     
-def extract_java_function_names(diff_message):
-    lines = diff_message.splitlines()
+def extract_java_function_names(diff: str):
+    lines = diff.splitlines()
     lines = [line for line in lines if not line.strip().startswith("-")]
-    diff_message = '\n'.join(lines)
+    diff = '\n'.join(lines)
     # Regular expression pattern to match Java function declarations
     pattern = r"[public|protected|private]?\s*[static|final]?\s*\w+\s+([a-zA-Z_][\w]*)\s*\([^)]*\)\s*\s*{?"
 
     # Find all matches in the diff message
-    matches = re.findall(pattern, diff_message)
+    matches = re.findall(pattern, diff)
     print(matches)
 
     # Extract function names from matches
@@ -47,7 +47,7 @@ def extract_java_function_names(diff_message):
 
     return function_names
 
-def extract_java_functions_from_code(source_code: str, function_names: list):
+def extract_java_functions_from_source(source_code: str, function_names: list):
     # Initialize an empty dictionary to store the results
     function_definitions = {}
 
@@ -72,12 +72,12 @@ def extract_python_function_names(diff: str):
     function_names = re.findall(function_pattern, diff)
     return function_names
 
-def get_python_functions_from_code(code: str, function_names: list):
+def extract_python_functions_from_source(source_code: str, function_names: list):
     """
     Retrieves the matching functions from the given code based on the provided function names.
 
     Args:
-        code (str): The code to analyze.
+        source_code (str): The code to analyze.
         function_names (list): A list of function names to search for.
 
     Returns:
@@ -89,7 +89,7 @@ def get_python_functions_from_code(code: str, function_names: list):
     matching_functions = {}
 
     # Parse the file's content into an abstract syntax tree (AST)
-    tree = ast.parse(code)
+    tree = ast.parse(source_code)
 
     # Traverse the AST to find function definitions
     for node in ast.walk(tree):
