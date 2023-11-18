@@ -8,4 +8,5 @@ flask-restplus
 openai
 python-dotenv
 pytest
+pyyaml
 #flask-restx

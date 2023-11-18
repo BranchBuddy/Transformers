@@ -1,6 +1,7 @@
 import json
 import os
 import time
+import yaml
 from dotenv import load_dotenv
 from openai import OpenAI
 
@@ -9,7 +10,7 @@ class OpenAiHandler:
     A class that handles interactions with OpenAI's text-davinci-003 model for code summarization.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, prompts_path='src/configs/prompts.yaml') -> None:
         """
         Initializes the OpenAiHandler class.
 
@@ -18,21 +19,19 @@ class OpenAiHandler:
         load_dotenv()
         openai_key = os.getenv("OPENAI_KEY")
         self.client = OpenAI(api_key=openai_key)
-        self.taskToAssistant = {}
-        dict_raw = os.getenv("ASSISTANT_DICTIONARY")
-        print(dict_raw)
-        self.taskToInstruction = json.loads(dict_raw)
-
+        self.task_to_assistant = {}
+        with open(prompts_path, 'r', encoding='utf-8') as f:
+            prompts = yaml.safe_load(f)
+        self.task_prompts = prompts
 
     def createAssistant(self, task):
-        
         assistant = self.client.beta.assistants.create(
             name=f"Code {task}",
-            instructions=self.taskToInstruction[task],
+            instructions=self.task_prompts[task],
             tools=[{"type": "code_interpreter"}],
             model="gpt-4"
         )
-        self.taskToAssistant[task] = assistant.id
+        self.task_to_assistant[task] = assistant.id
 
     def handleTask(self, task, content):
         # This code is for v1 of the openai package: pypi.org/project/openai
@@ -46,7 +45,7 @@ class OpenAiHandler:
         
         run = self.client.beta.threads.runs.create(
             thread_id=thread.id,
-            assistant_id=self.taskToAssistant[task],
+            assistant_id=self.task_to_assistant[task],
         )
         run = self.client.beta.threads.runs.retrieve(
             thread_id=thread.id,
