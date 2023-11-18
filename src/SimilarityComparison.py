@@ -3,6 +3,9 @@ import numpy as np
 from scipy.spatial.distance import cosine
 from transformers import AutoTokenizer, AutoModel
 
+from src.Analyzer import extract_involved_functions
+
+
 class SimilarityComparison:
     """
     A class for comparing the similarity between code snippets using BERT embeddings.
@@ -97,3 +100,23 @@ class SimilarityComparison:
                 if similarities[i,j] >= threshold:
                     indices_with_similarity += [(i, j, similarities[i, j])]
         return indices_with_similarity
+
+    def get_similar_functions_from_diff_and_source(self, focused_diff: str, focused_sources: dict[str, str], other_diff: str, other_sources: dict[str, str], threshold: float = 0.9):
+        """
+        Retrieves similar functions from the focused branch and another branch differences and sources.
+        The diffs are w.r.t. the main branch. The sources are the source code files from respective focused and other branches.
+
+        Args:
+            focused_diff (str): The focused code difference.
+            focused_sources (dict[str, str]): The dictionary of focused source code files.
+            other_diff (str): The other code difference.
+            other_sources (dict[str, str]): The dictionary of other source code files.
+            threshold (float, optional): The similarity threshold. Defaults to 0.9.
+
+        Returns:
+            List[str]: A list of similar functions between the focused and other code.
+
+        """
+        focused_involved_functions = extract_involved_functions(focused_diff, focused_sources)
+        other_involved_functions = extract_involved_functions(other_diff, other_sources)
+        return self.get_similar_functions(focused_involved_functions, other_involved_functions, threshold)

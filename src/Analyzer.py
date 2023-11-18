@@ -35,7 +35,6 @@ def extract_java_function_names(diff: str):
 
     # Find all matches in the diff message
     matches = re.findall(pattern, diff)
-    print(matches)
 
     # Extract function names from matches
     function_names = []
@@ -99,3 +98,49 @@ def extract_python_functions_from_source(source_code: str, function_names: list)
                 matching_functions[node.name] = astor.to_source(node)
 
     return matching_functions    
+
+def separate_diff_by_files(diff_message):
+    file_diffs = {}
+    current_file = None
+
+    # Split the diff message into lines
+    lines = diff_message.split('\n')
+
+    for line in lines:
+        # Check if the line starts with "+++ b/"
+        if line.startswith('+++ b/'):
+            # Extract the file name from the line
+            file_name = line[6:]
+            current_file = file_name
+            file_diffs[current_file] = []
+        elif current_file is not None:
+            # Append the line to the current file's diff
+            file_diffs[current_file].append(line)
+
+    # Join the lines to reconstruct the diff messages
+    for file_name, diff_lines in file_diffs.items():
+        file_diffs[file_name] = '\n'.join(diff_lines)
+
+    return file_diffs
+
+def extract_involved_functions(diff, sources):
+    """
+    Extracts the involved functions in the given diff from the sources.
+
+    Args:
+        diff (str): The diff containing the changes made.
+        sources (dict): A dictionary mapping file names to their corresponding source code.
+
+    Returns:
+        list: A list of involved functions extracted from the diff and sources.
+    """
+    functions = []
+    diffs = separate_diff_by_files(diff)
+    common_keys = diffs.keys() & sources.keys()
+    diffs = {key: diffs[key] for key in common_keys}
+    for file_name, diff in diffs.items():
+        if file_name.endswith(".java"):
+            functions += extract_functions(diff, sources[file_name], "java")
+        elif file_name.endswith(".py"):
+            functions += extract_functions(diff, sources[file_name], "python")
+    return functions
