@@ -5,8 +5,11 @@ from src.SimilarityComparison import SimilarityComparison
 from src.CodeImprover import CodeImprover
 from src.CodeSummarizer import CodeSummarizer
 from src.Digester import Digester
+from flask_cors import CORS
+
 app = Flask(__name__)
 swagger = Swagger(app)
+CORS(app)
 
 @app.route('/compare_code', methods=['POST'])
 def compare_code():
@@ -177,6 +180,7 @@ def improve():
         description: A code summarizer.
     """
     code = request.get_json().get('code')
+    
     codeImprover = CodeImprover()
     improvedCode = codeImprover.improveCode(code)
     return improvedCode
