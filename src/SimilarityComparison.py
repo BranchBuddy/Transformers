@@ -91,7 +91,7 @@ class SimilarityComparison:
             threshold (float, optional): Similarity threshold. Functions with similarity above this threshold will be considered similar. Defaults to 0.9.
 
         Returns:
-            list: List of tuples containing the indices and similarities of similar functions.
+            list(tuple): List of tuples containing the indices and similarities of similar functions.
         """
         similarities = self.compare_functions(focused_functions.values(), other_functions.values())
         indices_with_similarity = []
@@ -114,7 +114,7 @@ class SimilarityComparison:
             threshold (float, optional): The similarity threshold. Defaults to 0.9.
 
         Returns:
-            List[str]: A list of similar functions between the focused and other code.
+            List[tuple]: A list of (function_name_1, function_name_2, score) tuples between the focused and other code.
 
         """
         focused_involved_functions = extract_involved_functions(focused_diff, focused_sources)

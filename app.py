@@ -127,22 +127,22 @@ def compare_functions_between_branches():
         in: path
         type: string
         required: true
-        description: yes
+        description: diff of focused branch to main branch
         - name: focused_sources
         in: path
-        type: string
+        type: dict
         required: true
-        description: yes
+        description: dict of focused source code files {file.name: file.content}
         - name: other_diff
         in: path
         type: string
         required: true
-        description: yes
+        description: diff of other branch to main branch
         - name: other_sources
         in: path
-        type: string
+        type: dict
         required: true
-        description: yes
+        description: dict of other source code files {file.name: file.content}
         - name: threshold
         in: path
         type: float
