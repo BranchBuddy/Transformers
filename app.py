@@ -78,6 +78,7 @@ def summarize_completion():
 
     return jsonify({'similarity': summary})
 
+# Deprecated
 @app.route('/compare-functions/', methods=['POST'])
 def compare_functions():
     """
@@ -150,7 +151,7 @@ def compare_functions_between_branches():
         description: yes
     responses:
         200:
-        description: A code summarizer.
+        description: the similarity field is a list of (function_name_1, function_name_2, score) tuples between the focused and other code.
     """
     request_data = request.get_json()
     focused_diff = request_data.get('focused_diff')
