@@ -154,9 +154,10 @@ def compare_functions_between_branches():
         description: the similarity field is a list of (function_name_1, function_name_2, score) tuples between the focused and other code.
     """
     request_data = request.get_json()
-    focused_diff = request_data.get('focused_diff')
+    print(request_data)
+    focused_diff = str(request_data.get('focused_diff'))
     focused_sources = request_data.get('focused_sources')
-    other_diff = request_data.get('other_diff')
+    other_diff = str(request_data.get('other_diff'))
     other_sources = request_data.get('other_sources')
     cmp = SimilarityComparison()
     focused_sources = json.loads(focused_sources)

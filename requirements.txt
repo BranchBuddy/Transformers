@@ -10,3 +10,6 @@ python-dotenv
 pytest
 pyyaml
 #flask-restx
+flask-restx
+flasgger
+flask_cors
