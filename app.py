@@ -1,5 +1,5 @@
 import json
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flasgger import Swagger
 from src.SimilarityComparison import SimilarityComparison
 from src.CodeImprover import CodeImprover
@@ -7,8 +7,8 @@ from src.CodeSummarizer import CodeSummarizer
 app = Flask(__name__)
 swagger = Swagger(app)
 
-@app.route('/compare_code/<main_code>/<compare_code>', methods=['GET'])
-def compare_code(main_code, compare_code):
+@app.route('/compare_code', methods=['POST'])
+def compare_code():
     """
     ---
     parameters:
@@ -26,12 +26,15 @@ def compare_code(main_code, compare_code):
       200:
         description: A code comparator.
     """
+    data = request.get_json()
+    main_code = data.get('main_code')
+    compare_code = data.get('compare_code')
     cmp = SimilarityComparison()
     similarity = cmp.compare(main_code, compare_code)
     return jsonify({'similarity': similarity})
 
-@app.route('/summarize-assistant/<code>', methods=['GET'])
-def summarize_assistant(code):
+@app.route('/summarize-assistant', methods=['POST'])
+def summarize_assistant():
   """
     ---
     parameters:
@@ -44,13 +47,14 @@ def summarize_assistant(code):
       200:
         description: A code summarizer.
   """
+  code = request.get_json().get('code')
   summarizer = CodeSummarizer()
   summary = summarizer.summarizeCode(code)
   return jsonify(summary)
   
 
-@app.route('/summarize-complettion/<code>', methods=['GET'])
-def summarize_completion(code):
+@app.route('/summarize-completion', methods=['POST'])
+def summarize_completion():
   """
     ---
     parameters:
@@ -63,14 +67,15 @@ def summarize_completion(code):
       200:
         description: A code summarizer.
   """
+  code = request.get_json().get('code')
   summarizer = CodeSummarizer()
   summary = summarizer.summarize_code(code)
   print(type(summary))
 
   return jsonify({'similarity': summary})
 
-@app.route('/comapre-functions/<functions>/<threshold>', methods=['GET'])
-def compare_functions(functions, threshold):
+@app.route('/compare-functions/', methods=['POST'])
+def compare_functions():
   """
     ---
     parameters:
@@ -99,6 +104,9 @@ def compare_functions(functions, threshold):
       200:
         description: A code summarizer.
   """
+  data = request.get_json()
+  functions = data.get('functions')
+  threshold = data.get('threshold')
   cmp = SimilarityComparison()
   functions = json.loads(functions)
   if threshold:
@@ -106,8 +114,8 @@ def compare_functions(functions, threshold):
   similarity = cmp.get_similar_functions(functions['focused_functions'], functions['other_functions'], threshold)
   return jsonify({'similarity': similarity})
 
-@app.route('/compare-functions-between-branches/<focused_diff>/<focused_sources>/<other_diff>/<other_sources>/<threshold>', methods=['GET'])
-def compare_functions_between_branches(focused_diff, focused_sources, other_diff, other_sources, threshold):
+@app.route('/compare-functions-between-branches', methods=['POST'])
+def compare_functions_between_branches():
   """
     ---
     parameters:
@@ -140,6 +148,11 @@ def compare_functions_between_branches(focused_diff, focused_sources, other_diff
       200:
         description: A code summarizer.
   """
+  request_data = request.get_json()
+  focused_diff = request_data.get('focused_diff')
+  focused_sources = request_data.get('focused_sources')
+  other_diff = request_data.get('other_diff')
+  other_sources = request_data.get('other_sources')
   cmp = SimilarityComparison()
   focused_sources = json.loads(focused_sources)
   other_sources = json.loads(other_sources)
@@ -148,8 +161,8 @@ def compare_functions_between_branches(focused_diff, focused_sources, other_diff
   similarity = cmp.get_similar_functions_from_diff_and_source(focused_diff, focused_sources, other_diff, other_sources, threshold)
   return jsonify({'similarity': similarity})
 
-@app.route('/improve/<code>', methods=['GET'])
-def improve(code):
+@app.route('/improve', methods=['POST'])
+def improve():
   """
     ---
     parameters:
@@ -162,12 +175,13 @@ def improve(code):
       200:
         description: A code summarizer.
   """
+  code = request.get_json().get('code')
   codeImprover = CodeImprover()
   improvedCode = codeImprover.improveCode(code)
   return improvedCode
 
-@app.route('/comment/<code>', methods=['GET'])
-def comment(code):
+@app.route('/comment', methods=['POST'])
+def comment():
   """
     ---
     parameters:
@@ -180,6 +194,7 @@ def comment(code):
       200:
         description: A code summarizer.
   """
+  code = request.get_json().get('code')
   codeImprover = CodeImprover()
   commentedCode = codeImprover.commentCode(code)
 
