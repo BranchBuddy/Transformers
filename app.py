@@ -200,7 +200,7 @@ def comment():
     commentedCode = codeImprover.commentCode(code)
     return jsonify(commentedCode)
 
-@app.route('/digest/<commit_message>/<diff_message>/<digest_type>', methods=['Post'])
+@app.route('/digest', methods=['Post'])
 def digest():
     """
     ---
@@ -231,8 +231,7 @@ def digest():
     digester = Digester()
     dig = digester.digest(commit_message, diff_message, digest_type)
     return jsonify(dig)
-  
 
-  
+
 if __name__ == '__main__':
     app.run()
