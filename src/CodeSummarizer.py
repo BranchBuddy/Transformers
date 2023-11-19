@@ -1,10 +1,7 @@
-import time
-import requests
-from openai import OpenAI
 from src.OpenaiHandler import OpenAiHandler
 
-class CodeSummarizer:
 
+class CodeSummarizer:
 
     def __init__(self):
         self.handler = OpenAiHandler()

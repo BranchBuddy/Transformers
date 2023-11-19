@@ -1,0 +1,19 @@
+commit a45bd481bf97c3b7a5276df1a1d5903736ed0659 (HEAD -> main, origin/main)
+Author: Yuanchun Shen <y.c.shen@tum.de>
+Date:   Sun Nov 19 00:33:08 2023 +0100
+
+    Provide prompts via configs in yaml files
+
+commit 69cdaf8a8c7271d7d55f05c79a327b2c6cc55646
+Author: Yuanchun Shen <y.c.shen@tum.de>
+Date:   Sat Nov 18 22:03:03 2023 +0100
+
+    * feat(app.py): add route for comparing functions between branches with diff and source code
+    * fix(app.py): fix threshold parameter type in compare_functions_between_branches route
+
+commit a526621b0d9c45288229342afce008dfa0b38643
+Author: Yuanchun Shen <y.c.shen@tum.de>
+Date:   Sat Nov 18 21:58:07 2023 +0100
+
+    * feat(SimilarityComparison.py): add method to retrieve similar functions from focused and other branch differences and sources
+    * test(test_similarity_comparison.py): add test for get_similar_functions_from_diff_and_source method

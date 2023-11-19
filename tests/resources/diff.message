@@ -1,0 +1,148 @@
+diff --git a/app.py b/app.py
+index 23e0a28..e056efb 100644
+--- a/app.py
++++ b/app.py
+@@ -106,6 +106,48 @@ def compare_functions(functions, threshold):
+   similarity = cmp.get_similar_functions(functions['focused_functions'], functions['other_functions'], threshold)
+   return jsonify({'similarity': similarity})
+ 
++@app.route('/compare-functions-between-branches/<focused_diff>/<focused_sources>/<other_diff>/<other_sources>/<threshold>', methods=['GET'])
++def compare_functions_between_branches(focused_diff, focused_sources, other_diff, other_sources, threshold):
++  """
++    ---
++    parameters:
++      - name: focused_diff
++        in: path
++        type: string
++        required: true
++        description: yes
++      - name: focused_sources
++        in: path
++        type: string
++        required: true
++        description: yes
++      - name: other_diff
++        in: path
++        type: string
++        required: true
++        description: yes
++      - name: other_sources
++        in: path
++        type: string
++        required: true
++        description: yes
++      - name: threshold
++        in: path
++        type: float
++        required: true
++        description: yes
++    responses:
++      200:
++        description: A code summarizer.
++  """
++  cmp = SimilarityComparison()
++  focused_sources = json.loads(focused_sources)
++  other_sources = json.loads(other_sources)
++  if threshold:
++     threshold = float(threshold)
++  similarity = cmp.get_similar_functions_from_diff_and_source(focused_diff, focused_sources, other_diff, other_sources, threshold)
++  return jsonify({'similarity': similarity})
++
+ @app.route('/improve/<code>', methods=['GET'])
+ def improve(code):
+   """
+diff --git a/requirements.txt b/requirements.txt
+index f495ab6..d9a3bc9 100644
+--- a/requirements.txt
++++ b/requirements.txt
+@@ -8,4 +8,5 @@ flask-restplus
+ openai
+ python-dotenv
+ pytest
++pyyaml
+ #flask-restx
+diff --git a/src/CodeSummarizer.py b/src/CodeSummarizer.py
+index 82af606..9bcfcfd 100644
+--- a/src/CodeSummarizer.py
++++ b/src/CodeSummarizer.py
+@@ -1,10 +1,7 @@
+-import time
+-import requests
+-from openai import OpenAI
+ from src.OpenaiHandler import OpenAiHandler
+ 
+-class CodeSummarizer:
+ 
++class CodeSummarizer:
+ 
+     def __init__(self):
+         self.handler = OpenAiHandler()
+diff --git a/src/OpenaiHandler.py b/src/OpenaiHandler.py
+index 17bdb68..09ef432 100644
+--- a/src/OpenaiHandler.py
++++ b/src/OpenaiHandler.py
+@@ -1,6 +1,7 @@
+ import json
+ import os
+ import time
++import yaml
+ from dotenv import load_dotenv
+ from openai import OpenAI
+ 
+@@ -9,7 +10,7 @@ class OpenAiHandler:
+     A class that handles interactions with OpenAI's text-davinci-003 model for code summarization.
+     """
+ 
+-    def __init__(self) -> None:
++    def __init__(self, prompts_path='src/configs/prompts.yaml') -> None:
+         """
+         Initializes the OpenAiHandler class.
+ 
+@@ -18,21 +19,19 @@ class OpenAiHandler:
+         load_dotenv()
+         openai_key = os.getenv("OPENAI_KEY")
+         self.client = OpenAI(api_key=openai_key)
+-        self.taskToAssistant = {}
+-        dict_raw = os.getenv("ASSISTANT_DICTIONARY")
+-        print(dict_raw)
+-        self.taskToInstruction = json.loads(dict_raw)
+-
++        self.task_to_assistant = {}
++        with open(prompts_path, 'r', encoding='utf-8') as f:
++            prompts = yaml.safe_load(f)
++        self.task_prompts = prompts
+ 
+     def createAssistant(self, task):
+-        
+         assistant = self.client.beta.assistants.create(
+             name=f"Code {task}",
+-            instructions=self.taskToInstruction[task],
++            instructions=self.task_prompts[task],
+             tools=[{"type": "code_interpreter"}],
+             model="gpt-4"
+         )
+-        self.taskToAssistant[task] = assistant.id
++        self.task_to_assistant[task] = assistant.id
+ 
+     def handleTask(self, task, content):
+         # This code is for v1 of the openai package: pypi.org/project/openai
+@@ -46,7 +45,7 @@ class OpenAiHandler:
+         
+         run = self.client.beta.threads.runs.create(
+             thread_id=thread.id,
+-            assistant_id=self.taskToAssistant[task],
++            assistant_id=self.task_to_assistant[task],
+         )
+         run = self.client.beta.threads.runs.retrieve(
+             thread_id=thread.id,
+diff --git a/src/configs/prompts.yaml b/src/configs/prompts.yaml
+new file mode 100644
+index 0000000..94bcdc2
+--- /dev/null
++++ b/src/configs/prompts.yaml
+@@ -0,0 +1,4 @@
++summary: "You are a code summarizer that for a function, returns in one sentence the most important features implemented by the code in natural language without getting into code details"
++improve: "You are a code reviewer that checks a piece of code and rewrites the code in a way to:\n1. improve the syntax of the code\n2. improve the readability of the code\n3. improve the performance of the code. Just return the improved code without an explanation of the steps."
++comments: "You are a code commenter that takes in a function as input and returns the function with comments. Only return the improved function code without an explanation of the steps at the beginning."
++digest: "You are a code digester that takes in a series of commit messages, along with a git diff messages that shows the differences between the HEAD and the code associated with the earliest provided commit. Return a digest of the changes in natural language."
+\ No newline at end of file

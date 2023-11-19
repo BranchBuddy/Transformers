@@ -4,6 +4,7 @@ from flasgger import Swagger
 from src.SimilarityComparison import SimilarityComparison
 from src.CodeImprover import CodeImprover
 from src.CodeSummarizer import CodeSummarizer
+from src.Digester import Digester
 app = Flask(__name__)
 swagger = Swagger(app)
 
@@ -32,157 +33,187 @@ def compare_code(main_code, compare_code):
 
 @app.route('/summarize-assistant/<code>', methods=['GET'])
 def summarize_assistant(code):
-  """
+    """
     ---
     parameters:
-      - name: code
+        - name: code
         in: path
         type: string
         required: true
         description: yes
     responses:
-      200:
+        200:
         description: A code summarizer.
-  """
-  summarizer = CodeSummarizer()
-  summary = summarizer.summarizeCode(code)
-  return jsonify(summary)
+    """
+    summarizer = CodeSummarizer()
+    summary = summarizer.summarizeCode(code)
+    return jsonify(summary)
   
 
 @app.route('/summarize-complettion/<code>', methods=['GET'])
 def summarize_completion(code):
-  """
+    """
     ---
     parameters:
-      - name: code
+    - name: code
         in: path
         type: string
         required: true
         description: yes
     responses:
-      200:
+    200:
         description: A code summarizer.
-  """
-  summarizer = CodeSummarizer()
-  summary = summarizer.summarize_code(code)
-  print(type(summary))
+    """
+    summarizer = CodeSummarizer()
+    summary = summarizer.summarizeCode(code)
+    print(type(summary))
 
-  return jsonify({'similarity': summary})
+    return jsonify({'similarity': summary})
 
 @app.route('/comapre-functions/<functions>/<threshold>', methods=['GET'])
 def compare_functions(functions, threshold):
-  """
+    """
     ---
     parameters:
-      - name: functions
+        - name: functions
         in: path
         required: true
         schema:
-          type: object
-          properties:
+            type: object
+            properties:
             focused_functions:
-              type: array
-              items:
+                type: array
+                items:
                 type: string
             other_functions:
-              type: array
-              items:
+                type: array
+                items:
                 type: string
         description: yes
-      - name: threshold
+        - name: threshold
         in: path
         required: false
         type: float
         description: yes
 
     responses:
-      200:
+        200:
         description: A code summarizer.
-  """
-  cmp = SimilarityComparison()
-  functions = json.loads(functions)
-  if threshold:
-     threshold = float(threshold)
-  similarity = cmp.get_similar_functions(functions['focused_functions'], functions['other_functions'], threshold)
-  return jsonify({'similarity': similarity})
+    """
+    cmp = SimilarityComparison()
+    functions = json.loads(functions)
+    if threshold:
+        threshold = float(threshold)
+    similarity = cmp.get_similar_functions(functions['focused_functions'], functions['other_functions'], threshold)
+    return jsonify({'similarity': similarity})
 
 @app.route('/compare-functions-between-branches/<focused_diff>/<focused_sources>/<other_diff>/<other_sources>/<threshold>', methods=['GET'])
 def compare_functions_between_branches(focused_diff, focused_sources, other_diff, other_sources, threshold):
-  """
+    """
     ---
     parameters:
-      - name: focused_diff
+        - name: focused_diff
         in: path
         type: string
         required: true
         description: yes
-      - name: focused_sources
+        - name: focused_sources
         in: path
         type: string
         required: true
         description: yes
-      - name: other_diff
+        - name: other_diff
         in: path
         type: string
         required: true
         description: yes
-      - name: other_sources
+        - name: other_sources
         in: path
         type: string
         required: true
         description: yes
-      - name: threshold
+        - name: threshold
         in: path
         type: float
         required: true
         description: yes
     responses:
-      200:
+        200:
         description: A code summarizer.
-  """
-  cmp = SimilarityComparison()
-  focused_sources = json.loads(focused_sources)
-  other_sources = json.loads(other_sources)
-  if threshold:
-     threshold = float(threshold)
-  similarity = cmp.get_similar_functions_from_diff_and_source(focused_diff, focused_sources, other_diff, other_sources, threshold)
-  return jsonify({'similarity': similarity})
+    """
+    cmp = SimilarityComparison()
+    focused_sources = json.loads(focused_sources)
+    other_sources = json.loads(other_sources)
+    if threshold:
+        threshold = float(threshold)
+    similarity = cmp.get_similar_functions_from_diff_and_source(focused_diff, focused_sources, other_diff, other_sources, threshold)
+    return jsonify({'similarity': similarity})
 
 @app.route('/improve/<code>', methods=['GET'])
 def improve(code):
-  """
+    """
     ---
     parameters:
-      - name: code
+        - name: code
         in: path
         type: string
         required: true
         description: yes
     responses:
-      200:
+        200:
         description: A code summarizer.
-  """
-  codeImprover = CodeImprover()
-  improvedCode = codeImprover.improveCode(code)
-  return improvedCode
+    """
+    codeImprover = CodeImprover()
+    improvedCode = codeImprover.improveCode(code)
+    return improvedCode
 
 @app.route('/comment/<code>', methods=['GET'])
 def comment(code):
-  """
+    """
     ---
     parameters:
-      - name: code
+        - name: code
         in: path
         type: string
         required: true
         description: yes
     responses:
-      200:
+        200:
         description: A code summarizer.
-  """
-  codeImprover = CodeImprover()
-  commentedCode = codeImprover.commentCode(code)
+    """
+    codeImprover = CodeImprover()
+    commentedCode = codeImprover.commentCode(code)
+    return jsonify(commentedCode)
 
-  return jsonify(commentedCode)
+@app.route('/digest/<commit_message>/<diff_message>/<digest_type>', methods=['GET'])
+def digest(commit_message, diff_message, digest_type):
+    """
+    ---
+    parameters:
+        - name: commit_message
+        in: path
+        type: string
+        required: true
+        description: yes
+        - name: diff_message
+        in: path
+        type: string
+        required: true
+        description: yes
+        - name: digest_type
+        in: path
+        type: string
+        required: true
+        description: yes
+    responses:
+        200:
+        description: A code summarizer.
+    """
+    digester = Digester()
+    dig = digester.digest(commit_message, diff_message, digest_type)
+    return jsonify(dig)
+  
+
+  
 if __name__ == '__main__':
     app.run()
