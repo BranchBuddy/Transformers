@@ -12,7 +12,7 @@ def extract_functions(diff: str, source: str, language: str):
         language (str): The programming language of the source code. Must be either 'java' or 'python'.
 
     Returns:
-        list: A list of extracted functions from the source code.
+        dict: A dictionary containing the extracted functions as values, with the function names as keys.
 
     Raises:
         ValueError: If the provided language is not 'java' or 'python'.
@@ -132,15 +132,15 @@ def extract_involved_functions(diff, sources):
         sources (dict): A dictionary mapping file names to their corresponding source code.
 
     Returns:
-        list: A list of involved functions extracted from the diff and sources.
+        dict: A dictionary containing the involved functions as values, with the function names as keys.
     """
-    functions = []
+    functions = {}
     diffs = separate_diff_by_files(diff)
     common_keys = diffs.keys() & sources.keys()
     diffs = {key: diffs[key] for key in common_keys}
     for file_name, diff in diffs.items():
         if file_name.endswith(".java"):
-            functions += extract_functions(diff, sources[file_name], "java")
+            functions.update(extract_functions(diff, sources[file_name], "java"))
         elif file_name.endswith(".py"):
-            functions += extract_functions(diff, sources[file_name], "python")
+            functions.update(extract_functions(diff, sources[file_name], "python"))
     return functions

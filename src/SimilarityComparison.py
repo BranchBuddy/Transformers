@@ -86,19 +86,19 @@ class SimilarityComparison:
         Get the indices and similarities of functions that are similar to the focused functions.
 
         Args:
-            focused_functions (list): List of focused functions to compare.
-            other_functions (list): List of other functions to compare against.
+            focused_functions (dict): The focused functions, with the key as function names and value as function definition.
+            other_functions (dict): The other functions.
             threshold (float, optional): Similarity threshold. Functions with similarity above this threshold will be considered similar. Defaults to 0.9.
 
         Returns:
             list: List of tuples containing the indices and similarities of similar functions.
         """
-        similarities = self.compare_functions(focused_functions, other_functions)
+        similarities = self.compare_functions(focused_functions.values(), other_functions.values())
         indices_with_similarity = []
-        for i in range(len(focused_functions)):
-            for j in range(len(other_functions)):
+        for i, function_name_i in enumerate(focused_functions.keys()):
+            for j, function_name_j in enumerate(other_functions.keys()):
                 if similarities[i,j] >= threshold:
-                    indices_with_similarity += [(i, j, similarities[i, j])]
+                    indices_with_similarity += [(function_name_i, function_name_j, similarities[i, j])]
         return indices_with_similarity
 
     def get_similar_functions_from_diff_and_source(self, focused_diff: str, focused_sources: dict[str, str], other_diff: str, other_sources: dict[str, str], threshold: float = 0.9):
